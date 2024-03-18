@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL
 
+
+console.log(apiUrl);
 const SignUp = () => {
 
   // handels the linkes
@@ -14,9 +16,35 @@ const SignUp = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [userName, setUsername] = useState('');
   const [password, setPassword] = useState('');
+    
+  const handleSignUp = () => {
+    // Perform sign-up logic here, like sending data to the server
+    console.log({ name, email, phoneNumber, companyName, otp });
 
+    console.log("hello")
+    const user = {
+      name: name,
+      email: email,
+      password: password,
+      username:userName,
+    }
+
+    axios.post(`${apiUrl}/register`, user).then((response) => {
+      console.log(response);
+      Alert.alert("Registration successful", "You have been registered successfully");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setCompanyName("");
+
+    }).catch((error) => {
+      Alert.alert("Registration failed", "An error occurred while registering");
+      console.log("registration failed", error)
+    });
+    navigation.navigate('LoginScreen');
+  };
 
   const handleNavigation = () => {
     navigation.navigate('LoginScreen');
@@ -44,6 +72,36 @@ const SignUp = () => {
                 />
         <View style={{ width: '100%' }}>
         <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 5,
+                backgroundColor: "#E0E0E0",
+                paddingVertical: 5,
+                borderRadius: 5,
+                marginTop: 30,
+              }}
+            >
+              <Ionicons
+                style={{ marginLeft: 8 }}
+                name="person"
+                size={24}
+                color="gray"
+              />
+              <TextInput
+                value={name}
+                onChangeText={(text) => setName(text)}
+                secureTextEntry={true}
+                style={{
+                  color: "gray",
+                  marginVertical: 10,
+                  width: 300,
+                  fontSize: password ? 18 : 18,
+                }}
+                placeholder="enter your full name"
+              />
+            </View>
+        <View
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -61,15 +119,15 @@ const SignUp = () => {
               color="gray"
             />
             <TextInput
-              value={email}
-              onChangeText={(text) => setEmail(text)}
+              value={userName}
+              onChangeText={(text) => setUsername(text)}
               style={{
                 color: "gray",
                 marginVertical: 10,
                 width: 300,
                 fontSize: email ? 18 : 18,
               }}
-              placeholder="enter your Email"
+              placeholder="enter user name "
             />
           </View>
           <View
@@ -133,38 +191,7 @@ const SignUp = () => {
               />
             </View>
           </View>
-          <View style={{ marginTop: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <Ionicons
-                style={{ marginLeft: 8 }}
-                name="person"
-                size={24}
-                color="gray"
-              />
-              <TextInput
-                value={name}
-                onChangeText={(text) => setName(text)}
-                secureTextEntry={true}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: password ? 18 : 18,
-                }}
-                placeholder="enter your full name"
-              />
-            </View>
-          </View>
+          
           <TouchableOpacity style={{
             backgroundColor: '#4285F4',
             paddingHorizontal: 110,

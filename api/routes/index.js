@@ -127,7 +127,8 @@ router.get("/username/:id",(req,res)=>{
 })
 
 router.post("/register",function(req,res,next){
-const userData=new userModel({
+ console.log("am here");
+  const userData=new userModel({
   username:req.body.username,
   name:req.body.name,
   email:req.body.email,

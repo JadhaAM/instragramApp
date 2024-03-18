@@ -7,7 +7,8 @@ const experssSesstion=require("express-session")
 const passport=require("passport")
 const dotenv = require('dotenv');
 const process = require('process');
-const port=4000
+
+
 
 
 
@@ -19,9 +20,6 @@ const cors = require("cors");
 
 app.use(cors());
 dotenv.config({ path: path.join(__dirname, "./.env.example") });
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 // for user logedin 
 
@@ -41,7 +39,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -64,8 +61,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(port,()=>{
- console.log(`the server start in ${port}` );
+app.listen(process.env.PORT,()=>{
+ console.log(`the server start in ${process.env.PORT}` );
 });
 
 module.exports = app;
