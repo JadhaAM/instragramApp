@@ -21,7 +21,7 @@ const SignUp = () => {
     
   const handleSignUp = () => {
     // Perform sign-up logic here, like sending data to the server
-    console.log({ name, email, phoneNumber, companyName, otp });
+    console.log({ name, email });
 
     console.log("hello")
     const user = {
@@ -37,7 +37,7 @@ const SignUp = () => {
       setName("");
       setEmail("");
       setPassword("");
-      setCompanyName("");
+     
 
     }).catch((error) => {
       Alert.alert("Registration failed", "An error occurred while registering");
@@ -204,7 +204,9 @@ const SignUp = () => {
               fontSize: 20,
               textAlign: 'center',
               color: '#ffffff',
-            }}>SignUp</Text>
+            }}
+            onPress={handleSignUp}
+            >SignUp</Text>
           </TouchableOpacity>
         </View>
         <Text style={{

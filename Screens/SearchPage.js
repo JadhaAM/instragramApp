@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text } from 'react-native';
 import axios from 'axios';
+import Header from '../components/Header';
+import { Ionicons } from '@expo/vector-icons';
 
 const SearchScreen = () => {
   const [inputData, setInputData] = useState('');
@@ -23,12 +25,18 @@ const SearchScreen = () => {
     <>
       {/* Include header component */}
       <View>
-        {/* Header component */}
+        <Header />
       </View>
 
       <View style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 }}>
-        <View style={{ borderWidth: 2, borderColor: '#111', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2, paddingVertical: 1, borderRadius: 8 }}>
-          <Text style={{ color: '#fff' }}>Search</Text>
+        <View style={{ borderWidth: 2, borderColor: 'gray', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2, paddingVertical: 1, borderRadius: 8 }}>
+          <Ionicons
+            name="search"
+            style={{ margin: 8 }}
+            size={24}
+            color="gray"
+          />
+          <TextInput style={{ color: 'gray' }}></TextInput>
           <TextInput
             style={{ marginLeft: 1, flex: 1, backgroundColor: '#000', color: '#ccc' }}
             placeholder="search username"
@@ -54,10 +62,7 @@ const SearchScreen = () => {
         </View>
       </View>
 
-      {/* Include footer component */}
-      <View>
-        {/* Footer component */}
-      </View>
+
     </>
   );
 };

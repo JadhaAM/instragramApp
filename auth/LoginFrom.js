@@ -148,7 +148,7 @@ const LoginScreen = () => {
                             color: '#ffffff',
 
                         }}
-                        onPress={handleLoginNav}
+                        onPress={handleLogin}
                         >Log In</Text>
                     </TouchableOpacity>
                 </View>
