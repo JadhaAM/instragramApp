@@ -67,7 +67,8 @@ const LoginScreen = () => {
             }}>
                 <Image style={{ width: 150, height: 100, resizeMode: "contain"  }}
                     source={
-                        require('../assets/images/logo.png')
+                        require('../../assets/images/logo.png')
+                       
                    }
                 />
                 <View style={{ width: '100%' }}>

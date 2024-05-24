@@ -63,7 +63,7 @@ const PostScreen = () => {
           <Text style={styles.headerText}>Profile</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Upload Post</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Feed')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <Ionicons name="home" size={20} color="white" />
           <Text style={styles.headerText}>Home</Text>
         </TouchableOpacity>

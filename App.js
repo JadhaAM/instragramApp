@@ -4,11 +4,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
-import ReelsScreen from './Screens/ReelsScreen';
-import HomeScreen from './Screens/HomePage';
-import ProfileScreen from './Screens/UserProfile';
-import SearchScreen from './Screens/SearchPage';
-import PostScreen from './Screens/UpdatePage';
+import ReelsScreen from './src/Screens/ReelsScreen';
+import HomeScreen from './src/Screens/HomePage';
+import ProfileScreen from './src/Screens/UserProfile';
+import SearchScreen from './src/Screens/SearchPage';
+import PostScreen from './src/Screens/UpdatePage';
+import LoginScreen from './src/auth/LoginFrom';
+import SignUp from './src/auth/SignUp';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -58,6 +60,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

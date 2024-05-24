@@ -4,7 +4,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from @expo/vector-icons
 import Header from '../components/Header';
 import Stories from '../components/Stories';
-import EditScreen from './EditPage';
+import AllPostScreen from './AllPostPage';
+
 
 
 const HomeScreen = () => {
@@ -18,7 +19,7 @@ const HomeScreen = () => {
       <View style={styles.mainSection}>
         <Header/>
         <Stories/>
-        
+        <AllPostScreen/>
       </View>
     </View>
   );
@@ -26,7 +27,7 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 30,
+    marginTop: 40,
     backgroundColor: '#ffffff',
   },
  

@@ -1,12 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { View, FlatList, Dimensions, StyleSheet } from 'react-native';
-import Video from 'react-native-video';
+import { Video } from 'expo-av';
 
 const { height } = Dimensions.get('window');
 
+
 const videos = [
-  { id: '1', uri: 'https://path/to/video1.mp4' },
-  { id: '2', uri: 'https://path/to/video2.mp4' },
+  { id: '1', uri: 'https://youtube.com/shorts/jhJ9Lfn7w8s?si=E5YAgQSJmvivMyFs' },
+  { id: '2', uri: 'https://youtube.com/shorts/S7xrBIDdO7M?si=WSM4xhZLpi4Gq48l' },
   // Add more video URIs
 ];
 
@@ -15,6 +16,7 @@ const ReelsScreen = () => {
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
+      
     }
   }).current;
 
@@ -31,8 +33,10 @@ const ReelsScreen = () => {
               source={{ uri: item.uri }}
               style={styles.video}
               resizeMode="cover"
-              repeat
-              paused={index !== currentIndex}
+              shouldPlay
+              isLooping
+              isMuted={false}
+              volume={1.0}
             />
           )}
         </View>

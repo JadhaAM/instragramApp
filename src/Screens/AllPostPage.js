@@ -1,7 +1,11 @@
 
+import { View, Text, StyleSheet, TouchableOpacity , Image } from 'react-native';
+
+const posts =[
+
+]
  const AllPostScreen=()=>{
 
-    // Function to calculate time elapsed from a post date in React Native
 const getTimeElapsed=(postDate) =>{
     const currentDate = new Date();
     const postDateTime = new Date(postDate);
@@ -46,29 +50,22 @@ const handleLike=(postId)=> {
 
     return (
         <>
-        {/* include ./partials/header.ejs */}
       <View style={{ backgroundColor: '#000', paddingTop: 5 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4 }}>
-          <Image style={{ width: '25%' }} source={require('./images/logo.png')} />
-          <View style={{ flexDirection: 'row', marginTop: -2, gap: 5 }}>
-            <Image style={{ fontSize: 14 }} source={require('./images/heart.png')} />
-            <Image style={{ fontSize: 14 }} source={require('./images/messenger.png')} />
-          </View>
-        </View>
-        <View style={{ flexDirection: 'row', paddingHorizontal: 3, gap: 3, overflow: 'auto', marginTop: 5 }}>
+        
+        <View style={{ flexDirection: 'row', paddingHorizontal: 3, gap: 3, overflow: 'auto', marginTop: 25 }}>
           <View style={{ flexShrink: 0 }}>
             <View
               style={{
                 width: '18vw',
                 height: '18vw',
-                borderRadius: '50%',
+                borderRadius: 8,
                 backgroundColor: 'skyblue',
                 flexDirection: 'row',
                 justifyContent: 'center',
                 backgroundImage: 'linear-gradient(to right, purple, orange)',
               }}
             >
-              <View style={{ width: '92%', height: '92%', borderRadius: '50%', overflow: 'hidden' }}>
+              <View style={{ width: '92%', height: '92%', borderRadius: 8, overflow: 'hidden' }}>
                 <Image
                   style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
                   source={{
@@ -120,7 +117,7 @@ const handleLike=(postId)=> {
         {elem.like ? elem.like.length : 0} likes
       </Text>
       <Text style={styles.caption}>
-        <Text style={styles.usernameBold}>{elem.user.username}</Text>
+        <Text style={styles.usernameBold}>{elem.user.username} use name</Text>
         {elem.caption}
       </Text>
     </View>
@@ -132,4 +129,10 @@ const handleLike=(postId)=> {
     )
  }
 
- export default AllPostScreen ;
+ export default AllPostScreen;
+
+ const styles =StyleSheet.create(
+  {
+
+  }
+ )

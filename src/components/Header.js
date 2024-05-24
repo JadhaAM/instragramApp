@@ -20,6 +20,7 @@ const Header = () => {
                     name="chat"
                     size={24}
                     color="white"
+                    
                 />
             </View>
         </View>
