@@ -6,20 +6,20 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { AuthContext } from '../../src/AuthContext';
-import {api} from "../../src/api";
-
+import { api } from "../../src/api";
 
 const LoginScreen = () => {
     const navigation = useNavigation();
     const { login } = useContext(AuthContext);
 
     const loginValidationSchema = Yup.object().shape({
-        email: Yup.string().email('Invalid email').required('Email is required'),
+        userName: Yup.string().required('Username is required'),
         password: Yup.string().required('Password is required'),
     });
 
     const handleLogin = async (values, { setSubmitting }) => {
         const user = {
+            
             email: values.email,
             password: values.password,
         };
@@ -68,13 +68,13 @@ const LoginScreen = () => {
                             <TextInput
                                 style={styles.input}
                                 placeholder="User name"
-                                onChangeText={handleChange('email')}
-                                onBlur={handleBlur('email')}
-                                value={values.email}
+                                onChangeText={handleChange('userName')}
+                                onBlur={handleBlur('userName')}
+                                value={values.userName}
                             />
                         </View>
                         {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-                        
+
                         <View style={styles.inputContainer}>
                             <AntDesign style={styles.icon} name="lock1" size={24} color="gray" />
                             <TextInput
@@ -87,7 +87,7 @@ const LoginScreen = () => {
                             />
                         </View>
                         {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-                        
+
                         <TouchableOpacity
                             style={styles.button}
                             onPress={handleSubmit}

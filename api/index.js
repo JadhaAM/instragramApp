@@ -137,6 +137,10 @@ app.get('/edit',isLoggedIn,async function(req, res) {
   res.render('edit', {footer: true,user});
 });
 
+app.get('/check', isLoggedIn, (req, res) => {
+  res.status(200).json({ message: 'Authenticated', user: req.user });
+});
+
 app.get('/upload',isLoggedIn,async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
   

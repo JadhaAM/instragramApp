@@ -1,6 +1,6 @@
 // AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
-import api from './api';
+import api from '../src/api';
 
 export const AuthContext = createContext();
 
@@ -8,8 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in
-    api.get('/auth/check').then(response => {
+    
+    api.get('/check').then(response => {
       if (response.data.user) {
         setUser(response.data.user);
       }
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (values) => {
-    const response = await api.post('/auth/login', values);
+    const response = await api.post('/login', values);
     setUser(response.data.user);
   };
 

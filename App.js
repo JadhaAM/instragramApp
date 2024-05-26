@@ -61,8 +61,8 @@ export default function App() {
     <AuthProvider>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
           <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>

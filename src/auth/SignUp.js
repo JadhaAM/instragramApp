@@ -1,226 +1,186 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, Button, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign, Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL 
 
-console.log(apiUrl);
 const SignUp = () => {
-
-  // handels the linkes
   const navigation = useNavigation();
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [userName, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-    
-  const handleSignUp = () => {
-    // Perform sign-up logic here, like sending data to the server
-    console.log({ name, email });
+  const signUpValidationSchema = Yup.object().shape({
+    name: Yup.string().required('Full Name is required'),
+    userName: Yup.string().required('Username is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
 
-    console.log("hello")
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-      username:userName,
-    }
-
-    axios.post(`${apiUrl}/register`, user).then((response) => {
-      console.log(response);
-      Alert.alert("Registration successful", "You have been registered successfully");
-      setName("");
-      setEmail("");
-      setPassword("");
-     
-
-    }).catch((error) => {
+  const handleSignUp = async (values) => {
+    try {
+      const response = await axios.post(`${apiUrl}/register`, values);
+      if (response.status === 200) {
+        Alert.alert("Registration successful", "You have been registered successfully");
+        navigation.navigate('LoginScreen');
+      } else {
+        Alert.alert("Registration failed", "An error occurred while registering");
+      }
+    } catch (error) {
       Alert.alert("Registration failed", "An error occurred while registering");
-      console.log("registration failed", error)
-    });
-    navigation.navigate('LoginScreen');
+      console.log("Registration failed", error);
+    }
   };
 
   const handleNavigation = () => {
     navigation.navigate('LoginScreen');
   };
-  return (
 
-    <View style={{
-      flex: 1,
-      backgroundColor: '#17202A',
-      color: 'white',
-      padding: 20,
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <View style={{
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10
-      }}>
-         <Image style={{ width: 150, height: 100, resizeMode: "contain"  }}
-                    source={
-                        require('../../assets/images/logo.png')
-                   }
+  return (
+    <View style={styles.container}>
+      <View style={styles.innerContainer}>
+        <Image style={styles.logo} source={require('../../assets/images/logo.png')} />
+        <Formik
+          initialValues={{ name: '', email: '', userName: '', password: '' }}
+          validationSchema={signUpValidationSchema}
+          onSubmit={handleSignUp}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            <View style={styles.formContainer}>
+              <View style={styles.inputContainer}>
+                <Ionicons style={styles.icon} name="person" size={24} color="gray" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your full name"
+                  onChangeText={handleChange('name')}
+                  onBlur={handleBlur('name')}
+                  value={values.name}
                 />
-        <View style={{ width: '100%' }}>
-        <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <Ionicons
-                style={{ marginLeft: 8 }}
-                name="person"
-                size={24}
-                color="gray"
-              />
-              <TextInput
-                value={name}
-                onChangeText={(text) => setName(text)}
-                secureTextEntry={true}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: password ? 18 : 18,
-                }}
-                placeholder="enter your full name"
-              />
+              </View>
+              {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+
+              <View style={styles.inputContainer}>
+                <AntDesign style={styles.icon} name="user" size={24} color="gray" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter username"
+                  onChangeText={handleChange('userName')}
+                  onBlur={handleBlur('userName')}
+                  value={values.userName}
+                />
+              </View>
+              {touched.userName && errors.userName && <Text style={styles.errorText}>{errors.userName}</Text>}
+
+              <View style={styles.inputContainer}>
+                <MaterialIcons style={styles.icon} name="email" size={24} color="gray" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                  value={values.email}
+                />
+              </View>
+              {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+              <View style={styles.inputContainer}>
+                <AntDesign style={styles.icon} name="lock1" size={24} color="gray" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your password"
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  secureTextEntry
+                  value={values.password}
+                />
+              </View>
+              {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Sign Up</Text>
+              </TouchableOpacity>
             </View>
-        <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: "#E0E0E0",
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginTop: 30,
-            }}
-          >
-            <AntDesign
-              style={{ marginLeft: 8 }}
-              name="user"
-              size={24}
-              color="gray"
-            />
-            <TextInput
-              value={userName}
-              onChangeText={(text) => setUsername(text)}
-              style={{
-                color: "gray",
-                marginVertical: 10,
-                width: 300,
-                fontSize: email ? 18 : 18,
-              }}
-              placeholder="enter user name "
-            />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 5,
-              backgroundColor: "#E0E0E0",
-              paddingVertical: 5,
-              borderRadius: 5,
-              marginTop: 30,
-            }}
-          >
-            <MaterialIcons
-              style={{ marginLeft: 8 }}
-              name="email"
-              size={24}
-              color="gray"
-            />
-            <TextInput
-              value={email}
-              onChangeText={(text) => setEmail(text)}
-              style={{
-                color: "gray",
-                marginVertical: 10,
-                width: 300,
-                fontSize: email ? 18 : 18,
-              }}
-              placeholder="enter your Email"
-            />
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 5,
-                backgroundColor: "#E0E0E0",
-                paddingVertical: 5,
-                borderRadius: 5,
-                marginTop: 30,
-              }}
-            >
-              <AntDesign
-                style={{ marginLeft: 8 }}
-                name="lock1"
-                size={24}
-                color="gray"
-              />
-              <TextInput
-                value={password}
-                onChangeText={(text) => setPassword(text)}
-                secureTextEntry={true}
-                style={{
-                  color: "gray",
-                  marginVertical: 10,
-                  width: 300,
-                  fontSize: password ? 18 : 18,
-                }}
-                placeholder="enter your Password"
-              />
-            </View>
-          </View>
-          
-          <TouchableOpacity style={{
-            backgroundColor: '#4285F4',
-            paddingHorizontal: 110,
-            paddingVertical: 15,
-            borderRadius: 15,
-            marginTop: 25,
-          }}>
-            <Text style={{
-              fontWeight: 300,
-              fontSize: 20,
-              textAlign: 'center',
-              color: '#ffffff',
-            }}
-            onPress={handleSignUp}
-            >SignUp</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={{
-          color: '#FDFEFE',
-          paddingHorizontal: 10,
-          paddingVertical: 20,
-          fontWeight: 500,
-          fontSize: 19
-        }}>Already have an account ? <Text onPress={handleNavigation} style={{ color: '#FDFEFE', fontWeight: 'bold', fontSize: 22 }}>Log In</Text></Text>
+          )}
+        </Formik>
+
+        <Text style={styles.signInText}>
+          Already have an account? <Text onPress={handleNavigation} style={styles.signInLink}>Log In</Text>
+        </Text>
       </View>
     </View>
-
-
   );
 };
 
 export default SignUp;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#17202A',
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  innerContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  logo: {
+    width: 150,
+    height: 100,
+    resizeMode: 'contain',
+  },
+  formContainer: {
+    width: '100%',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#E0E0E0',
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginTop: 30,
+  },
+  icon: {
+    marginLeft: 8,
+  },
+  input: {
+    color: 'gray',
+    marginVertical: 10,
+    width: 300,
+    fontSize: 18,
+  },
+  button: {
+    backgroundColor: '#4285F4',
+    paddingHorizontal: 110,
+    paddingVertical: 15,
+    borderRadius: 15,
+    marginTop: 25,
+  },
+  buttonText: {
+    fontWeight: '300',
+    fontSize: 20,
+    textAlign: 'center',
+    color: '#ffffff',
+  },
+  signInText: {
+    color: '#FDFEFE',
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    fontWeight: '500',
+    fontSize: 19,
+  },
+  signInLink: {
+    color: '#FDFEFE',
+    fontWeight: 'bold',
+    fontSize: 22,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 5,
+  },
+});
