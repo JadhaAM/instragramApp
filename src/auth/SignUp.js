@@ -6,30 +6,32 @@ import axios from "axios";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL; 
 
 const SignUp = () => {
   const navigation = useNavigation();
 
   const signUpValidationSchema = Yup.object().shape({
     name: Yup.string().required('Full Name is required'),
-    userName: Yup.string().required('Username is required'),
+    username: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string().required('Password is required'),
   });
 
   const handleSignUp = async (values) => {
+    console.log(values);
     try {
       const response = await axios.post(`${apiUrl}/register`, values);
+      Alert.alert("response",response.status);
       if (response.status === 200) {
         Alert.alert("Registration successful", "You have been registered successfully");
         navigation.navigate('LoginScreen');
       } else {
-        Alert.alert("Registration failed", "An error occurred while registering");
+        Alert.alert("Registration failed", "An error occurred while registering from catch");
       }
     } catch (error) {
       Alert.alert("Registration failed", "An error occurred while registering");
-      console.log("Registration failed", error);
+      console.log("   Registration failed ", error);
     }
   };
 
@@ -42,7 +44,7 @@ const SignUp = () => {
       <View style={styles.innerContainer}>
         <Image style={styles.logo} source={require('../../assets/images/logo.png')} />
         <Formik
-          initialValues={{ name: '', email: '', userName: '', password: '' }}
+          initialValues={{ name: '', email: '', username: '', password: '' }}
           validationSchema={signUpValidationSchema}
           onSubmit={handleSignUp}
         >
@@ -65,12 +67,12 @@ const SignUp = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter username"
-                  onChangeText={handleChange('userName')}
-                  onBlur={handleBlur('userName')}
-                  value={values.userName}
+                  onChangeText={handleChange('username')}
+                  onBlur={handleBlur('username')}
+                  value={values.username}
                 />
               </View>
-              {touched.userName && errors.userName && <Text style={styles.errorText}>{errors.userName}</Text>}
+              {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
               <View style={styles.inputContainer}>
                 <MaterialIcons style={styles.icon} name="email" size={24} color="gray" />

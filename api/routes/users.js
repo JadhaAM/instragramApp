@@ -17,5 +17,6 @@ const userSchema=mongoose.Schema({
 })
 //this create serilized and deserialized users
 userSchema.plugin(plm);
+const User = mongoose.model("user",userSchema);
 
-module.exports=mongoose.model("user",userSchema);
+module.exports = User;

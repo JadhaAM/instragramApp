@@ -8,29 +8,31 @@ import axios from 'axios';
 import { AuthContext } from '../../src/AuthContext';
 import { api } from "../../src/api";
 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL; 
+
+
 const LoginScreen = () => {
     const navigation = useNavigation();
     const { login } = useContext(AuthContext);
 
     const loginValidationSchema = Yup.object().shape({
-        userName: Yup.string().required('Username is required'),
+        username: Yup.string().required('Username is required'),
         password: Yup.string().required('Password is required'),
     });
-
+    
     const handleLogin = async (values, { setSubmitting }) => {
         const user = {
-            
-            email: values.email,
+            username: values.username,
             password: values.password,
         };
-
+    
         try {
-            const response = await axios.post(`${api}/login`, user);
-
+            const response = await axios.post(`${apiUrl}/login`, user);
+    
             if (response.status === 200) {
                 console.log('Login successful');
-                await login(values); // update user context
-                navigation.navigate('HomeScreen');
+                await login(response.data.user); // update user context
+                navigation.navigate('MainTabs');
             } else {
                 console.error('Login failed:', response.statusText);
                 Alert.alert('Login failed', 'Please check your credentials');
@@ -42,6 +44,7 @@ const LoginScreen = () => {
             setSubmitting(false);
         }
     };
+    
 
     const handleNavigation = () => {
         navigation.navigate('SignUp');
@@ -57,7 +60,7 @@ const LoginScreen = () => {
             </View>
 
             <Formik
-                initialValues={{ email: '', password: '' }}
+                initialValues={{ username: '', password: '' }}
                 validationSchema={loginValidationSchema}
                 onSubmit={handleLogin}
             >
@@ -68,12 +71,12 @@ const LoginScreen = () => {
                             <TextInput
                                 style={styles.input}
                                 placeholder="User name"
-                                onChangeText={handleChange('userName')}
-                                onBlur={handleBlur('userName')}
-                                value={values.userName}
+                                onChangeText={handleChange('username')}
+                                onBlur={handleBlur('username')}
+                                value={values.username}
                             />
                         </View>
-                        {touched.email && errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+                        {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
 
                         <View style={styles.inputContainer}>
                             <AntDesign style={styles.icon} name="lock1" size={24} color="gray" />

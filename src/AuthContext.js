@@ -8,22 +8,41 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    
-    api.get('/check').then(response => {
-      if (response.data.user) {
-        setUser(response.data.user);
+    const checkUser = async () => {
+      try {
+        const response = await api.get('/check');
+        if (response.data.user) {
+          setUser(response.data.user);
+        
+          
+        }
+        console.log('Checking user with API URL:', api.defaults.baseURL);
+      } catch (error) {
+        console.error('Error checking user:', error);
       }
-    });
+    };
+
+    checkUser();
   }, []);
 
   const login = async (values) => {
-    const response = await api.post('/login', values);
-    setUser(response.data.user);
+    try {
+      const response = await api.post('/login', values);
+      console.log(response);
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error; // Re-throw the error to be caught by the login handler
+    }
   };
 
   const logout = async () => {
-    await api.post('/auth/logout');
-    setUser(null);
+    try {
+      await api.post('/logout');
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
@@ -32,3 +51,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+

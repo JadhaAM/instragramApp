@@ -14,16 +14,15 @@ const localStrategy=require("passport-local");
 const { MongooseError } = require('mongoose');
 
 
-
-
-
-
 var usersRouter = require('./routes/users');
 
 var app = express();
 const cors = require("cors");
 
-app.use(cors());
+app.use(cors({
+  origin: 'exp://127.0.0.1:8081',
+  credentials: true
+}));
 dotenv.config({ path: path.join(__dirname, "./.env.example") });
 
 // for user logedin 
@@ -45,7 +44,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-
 app.use('/users', usersRouter);
 
 
@@ -65,11 +63,19 @@ app.get('/feed',isLoggedIn,async function(req, res) {
    res.render('feed', {footer: true,posts,user});
 });
 
-app.get('/profile', isLoggedIn,async function(req, res) {
-  const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
-  
-  res.render('profile', {footer: true,user});
+app.get('/profile', isLoggedIn, async function(req, res) {
+  try {
+    const user = await userModel.findOne({ username: req.session.passport.user }).populate("posts");
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user); // Use res.json instead of res.render for API response
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Error fetching user' });
+  }
 });
+
 
 app.get('/search',isLoggedIn, async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
@@ -177,6 +183,7 @@ app.post("/register",function(req,res,next){
   username:req.body.username,
   name:req.body.name,
   email:req.body.email,
+  password:req.body.password,
 })
 userModel.register(userData,req.body.password)
 .then(function(){
@@ -186,12 +193,26 @@ userModel.register(userData,req.body.password)
 })
 });
 
-app.post("/login",passport.authenticate("local",{
-  successRedirect:"/profile",
-  failureRedirect:"/login"
-}),function(req,res){
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
+    const user = await userModel.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: "Login failed" });
+  }
 });
+
 
 app.post("/logout",function(req,res,next){
   req.logout(function(err) {

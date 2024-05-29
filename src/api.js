@@ -1,8 +1,10 @@
 
 import axios from 'axios';
 
+
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL; 
 const api = axios.create({
-  baseURL:" http://192.168.59.239:5000", 
+  baseURL:apiUrl, 
   withCredentials: true, 
 });
 
