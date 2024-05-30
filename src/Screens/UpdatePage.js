@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet,ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { Video } from 'expo-av';
 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
 const PostScreen = () => {
   const [media, setMedia] = useState(null);
   const [caption, setCaption] = useState('');
@@ -40,13 +41,13 @@ const PostScreen = () => {
       formData.append('caption', caption);
 
       // Replace with your API endpoint
-      const response = await axios.post('YOUR_API_ENDPOINT', formData, {
+      const response = await axios.post(`${apiUrl}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       if (response.status === 200) {
         Alert.alert('Success', 'Your post has been uploaded');
-        navigation.navigate('Feed');
+        navigation.navigate('MainTabs');
       } else {
         Alert.alert('Error', 'Failed to upload post');
       }
@@ -56,14 +57,14 @@ const PostScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color="white" />
           <Text style={styles.headerText}>Profile</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Upload Post</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity onPress={() => navigation.navigate('MainTabs')}>
           <Ionicons name="home" size={20} color="white" />
           <Text style={styles.headerText}>Home</Text>
         </TouchableOpacity>
@@ -103,7 +104,7 @@ const PostScreen = () => {
           <Text style={styles.postButtonText}>Post</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

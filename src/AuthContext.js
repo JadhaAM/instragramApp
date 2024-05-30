@@ -21,8 +21,18 @@ export const AuthProvider = ({ children }) => {
         console.error('Error checking user:', error);
       }
     };
+    
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('/profile', { withCredentials: true });
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
 
     checkUser();
+    fetchUser();
   }, []);
 
   const login = async (values) => {
@@ -46,7 +56,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout ,setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -42,6 +42,12 @@ function MainTabs() {
       tabBarOptions={{
         activeTintColor: 'tomato',
         inactiveTintColor: 'gray',
+       style:[
+        {
+          display:"flex"
+        },
+        null
+       ]
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />

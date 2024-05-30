@@ -13,19 +13,28 @@ const ProfileScreen = ({ navigation }) => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`${apiUrl}/profile`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
           withCredentials: true // Ensure cookies are sent with the request
         });
         setUser(response.data);
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Error fetching userProfile:', error);
       }
     };
 
-    fetchUser();
-  }, []);
+    if (!contextUser) {
+      fetchUser();
+    }
+  }, [contextUser]);
 
   if (!user) {
-    return <Text>Loading...</Text>;
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
   }
 
   return (
@@ -33,7 +42,7 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.username}>{user.username}</Text>
         <View style={styles.iconContainer}>
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity onPress={() => { }}>
             <Text style={styles.iconText}>+</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
@@ -63,10 +72,10 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.bio}>{user.bio}</Text>
       </View>
       <View style={styles.actionsContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => {}}>
+        <TouchableOpacity style={styles.button} onPress={() => { }}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => {}}>
+        <TouchableOpacity style={[styles.button, styles.followButton]} onPress={() => { }}>
           <Text style={styles.buttonText}>Follow</Text>
         </TouchableOpacity>
       </View>
@@ -85,6 +94,15 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#1a202c',
     paddingTop: 5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'black',
+    fontSize: 18,
   },
   header: {
     flexDirection: 'row',
@@ -138,6 +156,7 @@ const styles = StyleSheet.create({
   bio: {
     fontSize: 10,
     opacity: 0.5,
+    color: 'white',
   },
   actionsContainer: {
     paddingHorizontal: 6,

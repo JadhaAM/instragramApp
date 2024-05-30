@@ -1,54 +1,51 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const experssSesstion=require("express-session")
-const passport=require("passport")
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const session = require('express-session');
+const passport = require('passport');
 const dotenv = require('dotenv');
-const process = require('process');
-const userModel=require("./routes/users");
-const postModel=require("./routes/post")
+const userModel = require('./routes/users');
+const postModel = require('./routes/post'); 
+const localStrategy = require('passport-local').Strategy;
+const cors = require('cors');
 const upload=require("./routes/multer");
-const localStrategy=require("passport-local");
-const { MongooseError } = require('mongoose');
 
+const app = express();
 
-var usersRouter = require('./routes/users');
-
-var app = express();
-const cors = require("cors");
+dotenv.config({ path: path.join(__dirname, './.env.example') });
 
 app.use(cors({
-  origin: 'exp://127.0.0.1:8081',
+  origin: 'exp://192.168.128.239:8081',
   credentials: true
 }));
-dotenv.config({ path: path.join(__dirname, "./.env.example") });
 
-// for user logedin 
-
-app.use(experssSesstion({
-  resave :false,
-  saveUninitialized:false,
-  secret:"hey hello"
-}
-));
+app.use(session({
+  secret: 'hey hello',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Note: set to true if using HTTPS
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.serializeUser(usersRouter.serializeUser());
-passport.deserializeUser(usersRouter.deserializeUser());
+
+passport.use(new localStrategy(userModel.authenticate()));
+
+passport.serializeUser(userModel.serializeUser());
+passport.deserializeUser(userModel.deserializeUser());
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/users', usersRouter);
+
+app.use('/users', userModel);
 
 
 //easy to user authenticate
-passport.use(new localStrategy(userModel.authenticate()))
+passport.use(new localStrategy(userModel.authenticate()));
 app.get('/', function(req, res) {
   res.render('index', {footer: false});
 });
@@ -59,22 +56,27 @@ app.get('/login', function(req, res) {
 
 app.get('/feed',isLoggedIn,async function(req, res) {
   const posts=await postModel.find().populate("user");
-  const user= await userModel.findOne({username:req.session.passport.user});
+  const user= await userModel.findOne({username:req.params.user});
    res.render('feed', {footer: true,posts,user});
 });
 
-app.get('/profile', isLoggedIn, async function(req, res) {
+app.get('/profile', isLoggedIn, async function (req, res) {
+  console.log('Session:', req.session);
+  console.log('Passport:', req.session.passport);
+
   try {
-    const user = await userModel.findOne({ username: req.session.passport.user }).populate("posts");
+    const user = await userModel.findOne({ username: req.params.user }).populate('posts');
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user); // Use res.json instead of res.render for API response
+    res.json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error fetching user from server:', error);
     res.status(500).json({ message: 'Error fetching user' });
   }
 });
+cr
+
 
 
 app.get('/search',isLoggedIn, async function(req, res) {
@@ -143,7 +145,7 @@ app.get('/edit',isLoggedIn,async function(req, res) {
   res.render('edit', {footer: true,user});
 });
 
-app.get('/check', isLoggedIn, (req, res) => {
+app.get('/check',isLoggedIn,  (req, res) => {
   res.status(200).json({ message: 'Authenticated', user: req.user });
 });
 
@@ -188,7 +190,7 @@ app.post("/register",function(req,res,next){
 userModel.register(userData,req.body.password)
 .then(function(){
   passport.authenticate("local")(req,res,function(){
-    res.redirect("/profile");
+    res.status(200).json({ user });
   })
 })
 });
@@ -273,7 +275,7 @@ app.post("/update",upload.single('imagefile') ,async function(req,res){
     user.profileImage=req.file.filename;
   }
   await user.save();
-  res.redirect("/profile");
+  res.status(200).json({ user });
 });
 
 app.post('/upload',isLoggedIn, upload.single('image'),async function(req, res) {
@@ -286,12 +288,12 @@ app.post('/upload',isLoggedIn, upload.single('image'),async function(req, res) {
   })
   user.posts.push(post._id);
   await user.save();
-  res.redirect("/feed");
+  res.status(200).json({ user });
 });
 
 function isLoggedIn(req,res,next){
   if(req.isAuthenticated()) return next();
-  res.redirect("/login");
+  res.status(401).json({ message: 'Unauthorized' });
 };
 
 
