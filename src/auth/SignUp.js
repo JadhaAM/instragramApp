@@ -19,13 +19,19 @@ const SignUp = () => {
   });
 
   const handleSignUp = async (values) => {
-    console.log(values);
+    const stringValues = {
+      name: String(values.name),
+      username: String(values.username),
+      email: String(values.email),
+      password: String(values.password)
+    };
+    console.log(stringValues);
     try {
-      const response = await axios.post(`${apiUrl}/register`, values);
+      const response = await axios.post(`${apiUrl}/register`, stringValues);
       Alert.alert("response",response.status);
       if (response.status === 200) {
         Alert.alert("Registration successful", "You have been registered successfully");
-        navigation.navigate('LoginScreen');
+        handleNavigation();
       } else {
         Alert.alert("Registration failed", "An error occurred while registering from catch");
       }

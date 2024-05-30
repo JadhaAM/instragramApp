@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from "@expo/vector-icons";
@@ -8,43 +8,37 @@ import axios from 'axios';
 import { AuthContext } from '../../src/AuthContext';
 import { api } from "../../src/api";
 
-const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL; 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
 
 
 const LoginScreen = () => {
     const navigation = useNavigation();
-    const { login } = useContext(AuthContext);
+    const { token, setToken } = useContext(AuthContext);
+    useEffect(() => {
+        if (token) {
+            navigation.replace('MainStack', { screen: 'Main' });
+        }
+    }, [token, navigation]);
 
     const loginValidationSchema = Yup.object().shape({
         username: Yup.string().required('Username is required'),
         password: Yup.string().required('Password is required'),
     });
-    
+
     const handleLogin = async (values, { setSubmitting }) => {
         const user = {
             username: values.username,
             password: values.password,
         };
-    
-        try {
-            const response = await axios.post(`${apiUrl}/login`, user);
-    
-            if (response.status === 200) {
-                console.log('Login successful');
-                await login(response.data.user); // update user context
-                navigation.navigate('MainTabs');
-            } else {
-                console.error('Login failed:', response.statusText);
-                Alert.alert('Login failed', 'Please check your credentials');
-            }
-        } catch (error) {
-            console.error('Error logging in:', error.message);
-            Alert.alert('Error', 'An unexpected error occurred');
-        } finally {
-            setSubmitting(false);
-        }
+
+
+        const response = await axios.post(`${apiUrl}/login`, user);
+        const token = response.data.token;
+        console.log("token", token)
+        AsyncStorage.setItem('authToken', token);
+        setToken(token);
     };
-    
+
 
     const handleNavigation = () => {
         navigation.navigate('SignUp');

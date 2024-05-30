@@ -1,13 +1,10 @@
 const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const session = require('express-session');
-const passport = require('passport');
 const dotenv = require('dotenv');
 const userModel = require('./routes/users');
 const postModel = require('./routes/post'); 
-const localStrategy = require('passport-local').Strategy;
+const bodyParser = require('body-parser');
+const path =require('path');
+const crypto = require('crypto');
 const cors = require('cors');
 const upload=require("./routes/multer");
 
@@ -15,52 +12,26 @@ const app = express();
 
 dotenv.config({ path: path.join(__dirname, './.env.example') });
 
-app.use(cors({
-  origin: 'exp://192.168.128.239:8081',
-  credentials: true
-}));
+app.use(cors());
 
-app.use(session({
-  secret: 'hey hello',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false } // Note: set to true if using HTTPS
-}));
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.use(new localStrategy(userModel.authenticate()));
-
-passport.serializeUser(userModel.serializeUser());
-passport.deserializeUser(userModel.deserializeUser());
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
+const jwt = require('jsonwebtoken');
 
 app.use('/users', userModel);
-
-
-//easy to user authenticate
-passport.use(new localStrategy(userModel.authenticate()));
-app.get('/', function(req, res) {
-  res.render('index', {footer: false});
-});
 
 app.get('/login', function(req, res) {
   res.render('login', {footer: false});
 });
 
-app.get('/feed',isLoggedIn,async function(req, res) {
+app.get('/feed',async function(req, res) {
   const posts=await postModel.find().populate("user");
   const user= await userModel.findOne({username:req.params.user});
    res.render('feed', {footer: true,posts,user});
 });
 
-app.get('/profile', isLoggedIn, async function (req, res) {
+app.get('/profile',  async function (req, res) {
   console.log('Session:', req.session);
   console.log('Passport:', req.session.passport);
 
@@ -75,11 +46,11 @@ app.get('/profile', isLoggedIn, async function (req, res) {
     res.status(500).json({ message: 'Error fetching user' });
   }
 });
-cr
 
 
 
-app.get('/search',isLoggedIn, async function(req, res) {
+
+app.get('/search', async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
   res.render('search', {footer: true,user});
 });
@@ -120,7 +91,7 @@ app.get('/search',isLoggedIn, async function(req, res) {
 //   })
 // })
 
-app.get('/like/post/:id',isLoggedIn,async function(req, res) {
+app.get('/like/post/:id',async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user});
   const post =await postModel.findOne({_id:req.params.id})
 
@@ -145,18 +116,18 @@ app.get('/edit',isLoggedIn,async function(req, res) {
   res.render('edit', {footer: true,user});
 });
 
-app.get('/check',isLoggedIn,  (req, res) => {
+app.get('/check', (req, res) => {
   res.status(200).json({ message: 'Authenticated', user: req.user });
 });
 
-app.get('/upload',isLoggedIn,async function(req, res) {
+app.get('/upload',async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
   
   res.render('upload', {footer: true,user});
 });
 
 //router fro the search username
-app.get('/username/:username',isLoggedIn, async function(req, res) {
+app.get('/username/:username', async function(req, res) {
  const rege=new RegExp(`^${req.params.username}`,'i'); //get user input  
  const users=  await userModel.find({username:rege}); //find one by one user in database
   res.json(users); //send respons in jsoin formmat
@@ -181,37 +152,41 @@ app.get("/username/:id",(req,res)=>{
 
 app.post("/register",function(req,res,next){
  console.log("am here");
-  const userData=new userModel({
-  username:req.body.username,
-  name:req.body.name,
-  email:req.body.email,
-  password:req.body.password,
-})
-userModel.register(userData,req.body.password)
-.then(function(){
-  passport.authenticate("local")(req,res,function(){
-    res.status(200).json({ user });
-  })
-})
+ const {username,name, email, password, } = req.body;
+
+  const newUser = new userModel({username,name, email, password});
+
+  newUser.save()
+    .then(() => {
+      res.status(200).json({message: 'User registered succesfully!'});
+    })
+    .catch(error => {
+      console.log('Error creating a user');
+      res.status(500).json({message: 'Error registering the user'});
+    });
 });
 
 app.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const {username, password} = req.body;
 
-    const user = await userModel.findOne({ username });
+    const user = await userModel.findOne({username});
     if (!user) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({message: 'Invalid username'});
     }
 
     if (user.password !== password) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(401).json({message: 'Invalid password'});
     }
 
-    res.status(200).json({ user });
+    const secretKey = crypto.randomBytes(32).toString('hex');
+
+    const token = jwt.sign({userId: user._id}, secretKey);
+
+    res.status(200).json({token});
   } catch (error) {
-    console.error('Error during login:', error);
-    res.status(500).json({ message: "Login failed" });
+    console.log('error loggin in', error);
+    res.status(500).json({message: 'Error loggin In'});
   }
 });
 

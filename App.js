@@ -1,7 +1,8 @@
-import * as React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import ReelsScreen from './src/Screens/ReelsScreen';
 import HomeScreen from './src/Screens/HomePage';
@@ -10,7 +11,7 @@ import SearchScreen from './src/Screens/SearchPage';
 import PostScreen from './src/Screens/UpdatePage';
 import LoginScreen from './src/auth/LoginFrom';
 import SignUp from './src/auth/SignUp';
-import { AuthProvider } from './src/AuthContext';
+import { AuthProvider, AuthContext } from './src/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -26,11 +27,9 @@ function MainTabs() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Search') {
             iconName = focused ? 'search' : 'search-outline';
-          }
-          else if (route.name === 'Post') {
+          } else if (route.name === 'Post') {
             iconName = focused ? 'add-circle' : 'add-circle-outline';
-          }
-          else if (route.name === 'Reels') {
+          } else if (route.name === 'Reels') {
             iconName = focused ? 'videocam' : 'videocam-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
@@ -42,12 +41,6 @@ function MainTabs() {
       tabBarOptions={{
         activeTintColor: 'tomato',
         inactiveTintColor: 'gray',
-       style:[
-        {
-          display:"flex"
-        },
-        null
-       ]
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
@@ -59,16 +52,36 @@ function MainTabs() {
   );
 }
 
-export default function App() {
+function App() {
+  const { token, setToken } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchUserToken = async () => {
+      const storedToken = await AsyncStorage.getItem('authToken');
+      if (storedToken) {
+        setToken(storedToken);
+      }
+    };
+
+    fetchUserToken();
+  }, []);
+
   return (
     <AuthProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="LoginScreen">
-          <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-          <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+          {token === null ? (
+            <>
+              <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+            </>
+          ) : (
+            <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
   );
 }
+
+export default App;

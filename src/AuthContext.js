@@ -1,64 +1,39 @@
-// AuthContext.js
-import React, { createContext, useState, useEffect } from 'react';
-import api from '../src/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwtDecode from 'jwt-decode'; // Correct import statement
+import { createContext, useState, useEffect } from 'react';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(null);
+  const [userId, setUserId] = useState('');
+  const [authUser, setAuthUser] = useState(null); // Set initially to null
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await api.get('/check');
-        if (response.data.user) {
-          setUser(response.data.user);
-        
-          
-        }
-        console.log('Checking user with API URL:', api.defaults.baseURL);
-      } catch (error) {
-        console.error('Error checking user:', error);
-      }
-    };
-    
     const fetchUser = async () => {
       try {
-        const response = await axios.get('/profile', { withCredentials: true });
-        setUser(response.data);
+        const storedToken = await AsyncStorage.getItem('authToken');
+        if (storedToken) {
+          const decodedToken = jwtDecode(storedToken);
+          setToken(storedToken);
+          setUserId(decodedToken.userId);
+          setAuthUser(storedToken); // Set authUser after token is fetched
+        }
       } catch (error) {
-        console.error('Error fetching user:', error);
+        console.log('Error fetching user:', error);
       }
     };
 
-    checkUser();
     fetchUser();
   }, []);
 
-  const login = async (values) => {
-    try {
-      const response = await api.post('/login', values);
-      console.log(response);
-      setUser(response.data.user);
-    } catch (error) {
-      console.error('Error during login:', error);
-      throw error; // Re-throw the error to be caught by the login handler
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await api.post('/logout');
-      setUser(null);
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
+  console.log("authUser:", authUser); // Log authUser after it's set asynchronously
 
   return (
-    <AuthContext.Provider value={{ user, login, logout ,setUser }}>
+    <AuthContext.Provider value={{ token, userId, setToken, setUserId, authUser, setAuthUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+export { AuthContext, AuthProvider };
