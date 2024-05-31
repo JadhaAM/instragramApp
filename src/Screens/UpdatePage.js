@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet,ScrollView } from 'react-native';
+import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Video } from 'expo-av';
 
 const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
+
 const PostScreen = () => {
   const [media, setMedia] = useState(null);
   const [caption, setCaption] = useState('');
@@ -59,15 +60,15 @@ const PostScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-          <Ionicons name="person" size={20} color="white" />
-          <Text style={styles.headerText}>Profile</Text>
+        <TouchableOpacity onPress={() => {
+          setMedia(null);
+          navigation.navigate('MainTabs');
+        }}>
+          <Ionicons name="close" size={20} color="white" />
+          <Text style={styles.headerText}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Upload Post</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('MainTabs')}>
-          <Ionicons name="home" size={20} color="white" />
-          <Text style={styles.headerText}>Home</Text>
-        </TouchableOpacity>
+        
       </View>
       <View style={styles.mediaPickerContainer}>
         <TouchableOpacity style={styles.mediaPlaceholder} onPress={pickMedia}>
@@ -137,7 +138,6 @@ const styles = StyleSheet.create({
   mediaPlaceholder: {
     width: 350,
     height: 400,
-    
     borderWidth: 2,
     borderColor: '#222',
     alignItems: 'center',

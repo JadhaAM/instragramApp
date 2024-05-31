@@ -11,7 +11,10 @@ import SearchScreen from './src/Screens/SearchPage';
 import PostScreen from './src/Screens/UpdatePage';
 import LoginScreen from './src/auth/LoginFrom';
 import SignUp from './src/auth/SignUp';
+import ChatRoom from './src/Screens/ChatRoom';
 import { AuthProvider, AuthContext } from './src/AuthContext';
+import { SocketContextProvider } from './src/SocketContext';
+import ChatsScreen from './src/Screens/ChatsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -52,6 +55,16 @@ function MainTabs() {
   );
 }
 
+function MainStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+      <Stack.Screen name="ChatScreen" component={ChatsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="ChatRoom" component={ChatRoom} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
 function AuthStack() {
   return (
     <Stack.Navigator initialRouteName="LoginScreen">
@@ -78,12 +91,12 @@ function App() {
   }, []);
 
   if (!isTokenFetched) {
-    return null; // Optionally, you can return a loading indicator here
+    return null; // Optionally add a loading indicator here
   }
 
   return (
     <NavigationContainer>
-      {token === null ? <AuthStack /> : <MainTabs />}
+      {token === null ? <AuthStack /> : <MainStack />}
     </NavigationContainer>
   );
 }
@@ -91,7 +104,9 @@ function App() {
 export default function AppWrapper() {
   return (
     <AuthProvider>
-      <App />
+      <SocketContextProvider>
+        <App />
+      </SocketContextProvider>
     </AuthProvider>
   );
 }

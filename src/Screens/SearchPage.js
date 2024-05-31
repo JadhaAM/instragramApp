@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text } from 'react-native';
+import { View, TextInput, Text,ScrollView } from 'react-native';
 import axios from 'axios';
-import Header from '../components/Header';
 import { Ionicons } from '@expo/vector-icons';
 
 const SearchScreen = () => {
@@ -23,12 +22,7 @@ const SearchScreen = () => {
 
   return (
     <>
-      {/* Include header component */}
-      <View>
-        <Header />
-      </View>
-
-      <View style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 ,marginTop:10}}>
         <View style={{ borderWidth: 2, borderColor: 'gray', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2, paddingVertical: 1, borderRadius: 8 }}>
           <Ionicons
             name="search"
@@ -60,7 +54,7 @@ const SearchScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </ScrollView>
 
 
     </>

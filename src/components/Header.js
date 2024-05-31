@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-
+import { useNavigation } from '@react-navigation/native';
 const Header = () => {
+    const navigation = useNavigation();
     return (
         <View style={styles.header}>
             <Text style={styles.logo}>InstaLive</Text>
@@ -14,14 +15,20 @@ const Header = () => {
                     size={25}
                     color="white"
                 />
-                <MaterialCommunityIcons
+                <TouchableOpacity
+                    onPress={() => {
+                        navigation.navigate('ChatScreen');
+                    }}>
 
-                    style={{ marginLeft: 8 }}
-                    name="chat"
-                    size={24}
-                    color="white"
-                    
-                />
+                    <MaterialCommunityIcons
+
+                        style={{ marginLeft: 8 }}
+                        name="chat"
+                        size={24}
+                        color="white"
+
+                    />
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -48,7 +55,7 @@ const styles = StyleSheet.create({
         height: 24,
         marginLeft: 20,
         color: '#fff',
-        
+
     },
 });
 

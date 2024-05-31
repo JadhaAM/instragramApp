@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const path =require('path');
 const crypto = require('crypto');
 const cors = require('cors');
-const upload=require("./routes/multer");
+const upload=require("./routes/multer"); 
 
 const app = express();
 
@@ -21,9 +21,6 @@ const jwt = require('jsonwebtoken');
 
 app.use('/users', userModel);
 
-app.get('/login', function(req, res) {
-  res.render('login', {footer: false});
-});
 
 app.get('/feed',async function(req, res) {
   const posts=await postModel.find().populate("user");
@@ -49,8 +46,17 @@ app.get('/profile',  async function (req, res) {
 
 
 app.get('/search', async function(req, res) {
-  const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
-  res.render('search', {footer: true,user});
+  
+  try {
+    const user = await userModel.findOne({ username: req.params.user }).populate('posts');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user from server:', error);
+    res.status(500).json({ message: 'Error fetching user' });
+  }
 });
 
 //chatgpt code 
@@ -108,8 +114,8 @@ app.get('/like/post/:id',async function(req, res) {
   await post.save();
   res.redirect("/feed");
 });
-app.get('/edit',isLoggedIn,async function(req, res) {
-  const user= await userModel.findOne({username:req.session.passport.user});
+app.get('/edit',async function(req, res) {
+  const user= await userModel.findOne({username:req.paemas.user});
   
   res.render('edit', {footer: true,user});
 });
@@ -192,7 +198,7 @@ app.post("/logout",function(req,res,next){
   });``
 });
 // to user follow
-app.post("/follow",isLoggedIn,(req,res)=>{
+app.post("/follow",(req,res)=>{
  const user= userModel.findByIdAndUpdate(req.body.folloeId,{
   $push:{followers:req.user._id}
  },{
@@ -211,7 +217,7 @@ app.post("/follow",isLoggedIn,(req,res)=>{
 });
 
 // to user unfollow
-app.post("/unfollow",isLoggedIn,(req,res)=>{
+app.post("/unfollow",(req,res)=>{
   const user= userModel.findByIdAndUpdate(req.body.folloeId,{
    $pull:{followers:req.user._id}
   },{
@@ -247,9 +253,9 @@ app.post("/update",upload.single('imagefile') ,async function(req,res){
   res.status(200).json({ user });
 });
 
-app.post('/upload',isLoggedIn, upload.single('image'),async function(req, res) {
+app.post('/upload', upload.single('image'),async function(req, res) {
   
-  const user= await userModel.findOne({username:req.session.passport.user});
+  const user= await userModel.findOne({username:req.params.user});
   const post= await postModel.create({
     picture:req.file.filename,
     user:user._id,
@@ -259,16 +265,6 @@ app.post('/upload',isLoggedIn, upload.single('image'),async function(req, res) {
   await user.save();
   res.status(200).json({ user });
 });
-
-function isLoggedIn(req,res,next){
-  if(req.isAuthenticated()) return next();
-  res.status(401).json({ message: 'Unauthorized' });
-};
-
-
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
