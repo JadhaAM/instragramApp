@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -52,8 +52,18 @@ function MainTabs() {
   );
 }
 
+function AuthStack() {
+  return (
+    <Stack.Navigator initialRouteName="LoginScreen">
+      <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+}
+
 function App() {
   const { token, setToken } = useContext(AuthContext);
+  const [isTokenFetched, setIsTokenFetched] = useState(false);
 
   useEffect(() => {
     const fetchUserToken = async () => {
@@ -61,27 +71,27 @@ function App() {
       if (storedToken) {
         setToken(storedToken);
       }
+      setIsTokenFetched(true);
     };
 
     fetchUserToken();
   }, []);
 
+  if (!isTokenFetched) {
+    return null; // Optionally, you can return a loading indicator here
+  }
+
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="LoginScreen">
-          {token === null ? (
-            <>
-              <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-            </>
-          ) : (
-            <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </AuthProvider>
+    <NavigationContainer>
+      {token === null ? <AuthStack /> : <MainTabs />}
+    </NavigationContainer>
   );
 }
 
-export default App;
+export default function AppWrapper() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+}

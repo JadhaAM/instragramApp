@@ -6,7 +6,7 @@ import axios from "axios";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL; 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:3000'; // Ensure you set the API URL correctly
 
 const SignUp = () => {
   const navigation = useNavigation();
@@ -18,26 +18,26 @@ const SignUp = () => {
     password: Yup.string().required('Password is required'),
   });
 
-  const handleSignUp = async (values) => {
-    const stringValues = {
-      name: String(values.name),
-      username: String(values.username),
-      email: String(values.email),
-      password: String(values.password)
-    };
-    console.log(stringValues);
+  const handleSignUp = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post(`${apiUrl}/register`, stringValues);
-      Alert.alert("response",response.status);
+      const response = await axios.post(`${apiUrl}/register`, {
+        name: String(values.name),
+        username: String(values.username),
+        email: String(values.email),
+        password: String(values.password),
+      });
+
       if (response.status === 200) {
         Alert.alert("Registration successful", "You have been registered successfully");
         handleNavigation();
       } else {
-        Alert.alert("Registration failed", "An error occurred while registering from catch");
+        Alert.alert("Registration failed", "An error occurred while registering");
       }
     } catch (error) {
+      console.log("Registration failed", error);
       Alert.alert("Registration failed", "An error occurred while registering");
-      console.log("   Registration failed ", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -54,7 +54,7 @@ const SignUp = () => {
           validationSchema={signUpValidationSchema}
           onSubmit={handleSignUp}
         >
-          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
             <View style={styles.formContainer}>
               <View style={styles.inputContainer}>
                 <Ionicons style={styles.icon} name="person" size={24} color="gray" />
@@ -105,7 +105,11 @@ const SignUp = () => {
               </View>
               {touched.password && errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+                disabled={isSubmitting}
+              >
                 <Text style={styles.buttonText}>Sign Up</Text>
               </TouchableOpacity>
             </View>

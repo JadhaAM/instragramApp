@@ -32,9 +32,7 @@ app.get('/feed',async function(req, res) {
 });
 
 app.get('/profile',  async function (req, res) {
-  console.log('Session:', req.session);
-  console.log('Passport:', req.session.passport);
-
+  
   try {
     const user = await userModel.findOne({ username: req.params.user }).populate('posts');
     if (!user) {
@@ -116,9 +114,6 @@ app.get('/edit',isLoggedIn,async function(req, res) {
   res.render('edit', {footer: true,user});
 });
 
-app.get('/check', (req, res) => {
-  res.status(200).json({ message: 'Authenticated', user: req.user });
-});
 
 app.get('/upload',async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
@@ -150,20 +145,19 @@ app.get("/username/:id",(req,res)=>{
   })
 })
 
-app.post("/register",function(req,res,next){
+app.post("/register" ,async function(req,res,next){
  console.log("am here");
- const {username,name, email, password, } = req.body;
+ try{   
+ const {username,name, email, password } = req.body;
 
-  const newUser = new userModel({username,name, email, password});
-
-  newUser.save()
-    .then(() => {
-      res.status(200).json({message: 'User registered succesfully!'});
-    })
-    .catch(error => {
-      console.log('Error creating a user');
-      res.status(500).json({message: 'Error registering the user'});
-    });
+ const newUser = new userModel({ username, name, email, password });
+ await newUser.save();
+ console.log("User registered successfully");
+ res.status(200).json({ message: 'User registered successfully!' });
+} catch (error) {
+  console.error('Error creating a user:', error); // Improved error logging
+  res.status(500).json({ message: 'Error registering the user' });
+}
 });
 
 app.post("/login", async (req, res) => {
@@ -182,7 +176,7 @@ app.post("/login", async (req, res) => {
     const secretKey = crypto.randomBytes(32).toString('hex');
 
     const token = jwt.sign({userId: user._id}, secretKey);
-
+    console.log("token:",token);
     res.status(200).json({token});
   } catch (error) {
     console.log('error loggin in', error);

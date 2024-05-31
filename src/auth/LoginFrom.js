@@ -1,12 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign } from "@expo/vector-icons";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { AuthContext } from '../../src/AuthContext';
-import { api } from "../../src/api";
+
 
 const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
 
@@ -14,9 +15,10 @@ const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
 const LoginScreen = () => {
     const navigation = useNavigation();
     const { token, setToken } = useContext(AuthContext);
+    
     useEffect(() => {
         if (token) {
-            navigation.replace('MainStack', { screen: 'Main' });
+            navigation.replace('MainTabs', {screen: 'Home'});
         }
     }, [token, navigation]);
 
@@ -27,8 +29,8 @@ const LoginScreen = () => {
 
     const handleLogin = async (values, { setSubmitting }) => {
         const user = {
-            username: values.username,
-            password: values.password,
+            username:String( values.username),
+            password: String( values.password),
         };
 
 
