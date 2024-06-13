@@ -6,7 +6,7 @@ import axios from "axios";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:3000'; // Ensure you set the API URL correctly
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL ;
 
 const SignUp = () => {
   const navigation = useNavigation();
@@ -48,7 +48,7 @@ const SignUp = () => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image style={styles.logo} source={require('../../assets/images/logo.png')} />
+        <Image style={styles.logo} source={require('../../assets/logo.png')} />
         <Formik
           initialValues={{ name: '', email: '', username: '', password: '' }}
           validationSchema={signUpValidationSchema}

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons from @expo/vector-icons
+import { Ionicons } from '@expo/vector-icons'; 
 import Header from '../components/Header';
 import Stories from '../components/Stories';
 import AllPostScreen from './AllPostPage';
@@ -14,8 +14,6 @@ const HomeScreen = () => {
     <View style={styles.container}>
      
       
-      
-      {/* Main Section */}
       <View style={styles.mainSection}>
         <Header/>
         <Stories/>

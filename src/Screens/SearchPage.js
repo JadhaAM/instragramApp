@@ -22,7 +22,7 @@ const SearchScreen = () => {
 
   return (
     <>
-      <ScrollView style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 ,marginTop:10}}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 ,marginTop:30}}>
         <View style={{ borderWidth: 2, borderColor: 'gray', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 2, paddingVertical: 1, borderRadius: 8 }}>
           <Ionicons
             name="search"

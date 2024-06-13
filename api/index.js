@@ -1,12 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const userModel = require('./routes/users');
-const postModel = require('./routes/post'); 
+const userModel = require('./models/users');
+const postModel = require('./models/post'); 
 const bodyParser = require('body-parser');
 const path =require('path');
 const crypto = require('crypto');
 const cors = require('cors');
-const upload=require("./routes/multer"); 
+const upload=require("./models/multer"); 
+const Secret = require('./models/Secret');
+const authenticateToken =require("./models/authenticateToken");
 
 const app = express();
 
@@ -25,16 +27,21 @@ app.use('/users', userModel);
 app.get('/feed',async function(req, res) {
   const posts=await postModel.find().populate("user");
   const user= await userModel.findOne({username:req.params.user});
-   res.render('feed', {footer: true,posts,user});
+  
 });
 
-app.get('/profile',  async function (req, res) {
-  
+app.get('/profile', authenticateToken, async (req, res) => {
+  console.log('Inside /profile endpoint');
   try {
-    const user = await userModel.findOne({ username: req.params.user }).populate('posts');
+    const userId = req.user.userId;
+    console.log('User ID from token:', userId);
+
+    const user = await userModel.findById(userId);
     if (!user) {
+      console.log('User not found');
       return res.status(404).json({ message: 'User not found' });
     }
+    console.log('User found:', user);
     res.json(user);
   } catch (error) {
     console.error('Error fetching user from server:', error);
@@ -59,50 +66,11 @@ app.get('/search', async function(req, res) {
   }
 });
 
-//chatgpt code 
-// router.post("/like/post/:id", isLoggedIn, (req, res) => {
-//   const postId = req.params.id;
-//   const userId = req.user._id;
 
-//   postModel.findByIdAndUpdate(
-//     postId,
-//     { $push: { like: userId } },
-//     { new: true }
-//   ) .then((result) => {
-//       // Handle the resolved value (result)
-//       res.json(result);
-//     })
-//     .catch((error) => {
-//       // Handle the rejected value (error)
-//       console.log(error);
-//       res.status(422).json({ error: error.message });
-//     });
-// });
-
-// router.put("/unlike/post/:id",isLoggedIn,(req,res)=>{
-//   postModel.findByIdAndUpdate(req.body.posts,{
-//     $pull:{like:req.user._id}
-//   },{
-//     new:true
-//   }).exec((error,result)=>{
-//     if(error){
-//       consol.log(error)
-//       return res.status(422).json({error:error})
-//     }
-//     else{
-//       res.json(result)
-//     }
-//   })
-// })
 
 app.get('/like/post/:id',async function(req, res) {
   const user= await userModel.findOne({username:req.session.passport.user});
   const post =await postModel.findOne({_id:req.params.id})
-
-  //if like then remove if not then like
-  // if(post.likes && post.likes.indexOf(user._id)===-1){
-  //   post.likes.push(user._id);
-  // }
   
   if (Array.isArray(post.like) && post.like.indexOf(user._id) === -1) {
     post.like.push(user._id);
@@ -112,26 +80,20 @@ app.get('/like/post/:id',async function(req, res) {
   }
   
   await post.save();
-  res.redirect("/feed");
-});
-app.get('/edit',async function(req, res) {
-  const user= await userModel.findOne({username:req.paemas.user});
   
-  res.render('edit', {footer: true,user});
 });
 
 
 app.get('/upload',async function(req, res) {
-  const user= await userModel.findOne({username:req.session.passport.user}).populate("posts");
-  
-  res.render('upload', {footer: true,user});
+  const user= await userModel.findOne({username:req.body.user}).populate("posts");
+
 });
 
-//router fro the search username
+
 app.get('/username/:username', async function(req, res) {
- const rege=new RegExp(`^${req.params.username}`,'i'); //get user input  
- const users=  await userModel.find({username:rege}); //find one by one user in database
-  res.json(users); //send respons in jsoin formmat
+ const rege=new RegExp(`^${req.params.username}`,'i'); 
+ const users=  await userModel.find({username:rege}); 
+  res.json(users);
 });
 
 app.get("/username/:id",(req,res)=>{
@@ -161,42 +123,39 @@ app.post("/register" ,async function(req,res,next){
  console.log("User registered successfully");
  res.status(200).json({ message: 'User registered successfully!' });
 } catch (error) {
-  console.error('Error creating a user:', error); // Improved error logging
+  console.error('Error creating a user:', error); 
   res.status(500).json({ message: 'Error registering the user' });
 }
 });
 
+
 app.post("/login", async (req, res) => {
   try {
-    const {username, password} = req.body;
+    const { username, password } = req.body;
 
-    const user = await userModel.findOne({username});
+    const user = await userModel.findOne({ username });
     if (!user) {
-      return res.status(401).json({message: 'Invalid username'});
+      return res.status(401).json({ message: 'Invalid username' });
     }
 
     if (user.password !== password) {
-      return res.status(401).json({message: 'Invalid password'});
+      return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const secretKey = crypto.randomBytes(32).toString('hex');
+    var secretKey = crypto.randomBytes(32).toString('hex');
 
-    const token = jwt.sign({userId: user._id}, secretKey);
-    console.log("token:",token);
-    res.status(200).json({token});
+    
+    await Secret.create({ userId: user._id, secret: secretKey });
+
+    const token = jwt.sign({ userId: user._id }, secretKey);
+    console.log("token:", token);
+    res.status(200).json({ token });
   } catch (error) {
-    console.log('error loggin in', error);
-    res.status(500).json({message: 'Error loggin In'});
+    console.log('error logging in', error);
+    res.status(500).json({ message: 'Error logging In' });
   }
 });
 
-
-app.post("/logout",function(req,res,next){
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });``
-});
 // to user follow
 app.post("/follow",(req,res)=>{
  const user= userModel.findByIdAndUpdate(req.body.folloeId,{
@@ -238,9 +197,9 @@ app.post("/unfollow",(req,res)=>{
 //update files
 
 app.post("/update",upload.single('imagefile') ,async function(req,res){
- // user updated
+
  const user= await userModel.findOneAndUpdate(
-  {username:req.session.passport.user},
+  {username:req.params.user},
   {username:req.body.username,name:req.body.name,bio:req.body.bio},
   {new:true}
   );
@@ -253,37 +212,120 @@ app.post("/update",upload.single('imagefile') ,async function(req,res){
   res.status(200).json({ user });
 });
 
-app.post('/upload', upload.single('image'),async function(req, res) {
-  
-  const user= await userModel.findOne({username:req.params.user});
-  const post= await postModel.create({
-    picture:req.file.filename,
-    user:user._id,
-    caption:req.body.caption
-  })
-  user.posts.push(post._id);
-  await user.save();
-  res.status(200).json({ user });
-});
+app.post('/upload',authenticateToken, upload.single('image'), async function(req, res) {
+  try {
+    const user = await userModel.findOne({ username: req.body.user });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+    const post = await postModel.create({
+      picture: req.file.filename,
+      user: user._id,
+      caption: req.body.caption
+    });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    user.posts.push(post._id);
+    await user.save();
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ message: 'An error occurred while creating the post mseg from server',error });
+  }
 });
 
 app.listen(process.env.PORT,()=>{
  console.log(`the server start in ${process.env.PORT}` );
+});
+
+
+const http = require('http').createServer(app);
+
+const io = require('socket.io')(http);
+
+//{"userId" : "socket ID"}
+
+const userSocketMap = {};
+
+io.on('connection', socket => {
+  console.log('a user is connected', socket.id);
+
+  const userId = socket.handshake.query.userId;
+
+  console.log('userid', userId);
+
+  if (userId !== 'undefined') {
+    userSocketMap[userId] = socket.id;
+  }
+
+  console.log('user socket data', userSocketMap);
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected', socket.id);
+    delete userSocketMap[userId];
+  });
+
+  socket.on('sendMessage', ({senderId, receiverId, message}) => {
+    const receiverSocketId = userSocketMap[receiverId];
+
+    console.log('receiver Id', receiverId);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('receiveMessage', {
+        senderId,
+        message,
+      });
+    }
+  });
+});
+
+http.listen(3000, () => {
+  console.log('Socket.IO running on port 3000');
+});
+
+app.post('/sendMessage', async (req, res) => {
+  try {
+    const {senderId, receiverId, message} = req.body;
+
+    const newMessage = new Message({
+      senderId,
+      receiverId,
+      message,
+    });
+
+    await newMessage.save();
+
+    const receiverSocketId = userSocketMap[receiverId];
+
+    if (receiverSocketId) {
+      console.log('emitting recieveMessage event to the reciver', receiverId);
+      io.to(receiverSocketId).emit('newMessage', newMessage);
+    } else {
+      console.log('Receiver socket ID not found');
+    }
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.log('ERROR', error);
+  }
+});
+
+app.get('/messages', async (req, res) => {
+  try {
+    const {senderId, receiverId} = req.query;
+
+    const messages = await Message.find({
+      $or: [
+        {senderId: senderId, receiverId: receiverId},
+        {senderId: receiverId, receiverId: senderId},
+      ],
+    }).populate('senderId', '_id name');
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log('Error', error);
+  }
 });
 
 module.exports = app;

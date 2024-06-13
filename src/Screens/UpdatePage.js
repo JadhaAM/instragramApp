@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState ,useContext} from 'react';
 import { View, Text, TextInput, Alert, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { Video } from 'expo-av';
+import { AuthContext } from '../AuthContext';
+
+
+
+
 
 const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
+console.log('Error fetching userProfile:', apiUrl);
 
-const PostScreen = () => {
+const PostScreen = ({ navigation }) => {
   const [media, setMedia] = useState(null);
   const [caption, setCaption] = useState('');
-  const navigation = useNavigation();
-
+  const { token, setToken, setUserId, userId } = useContext(AuthContext);
+  const { authUser: contextUser } = useContext(AuthContext);
+  
+  console.log('Context User:', contextUser);
   const pickMedia = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -27,6 +34,8 @@ const PostScreen = () => {
   };
 
   const handleSubmit = async () => {
+     
+    console.log("am going to post");
     if (!media || !caption) {
       Alert.alert('Error', 'Please select an image or video and write a caption');
       return;
@@ -40,12 +49,17 @@ const PostScreen = () => {
         type: media.type,
       });
       formData.append('caption', caption);
-
-      // Replace with your API endpoint
+      formData.append('user', JSON.stringify(contextUser)); 
+    
+      console.log('FormData:', formData); 
+    
       const response = await axios.post(`${apiUrl}/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+       }
       });
-
+    
       if (response.status === 200) {
         Alert.alert('Success', 'Your post has been uploaded');
         navigation.navigate('MainTabs');
@@ -53,22 +67,31 @@ const PostScreen = () => {
         Alert.alert('Error', 'Failed to upload post');
       }
     } catch (error) {
-      Alert.alert('Error', 'An error occurred while uploading the post');
+      Alert.alert('Error', "An error occurred in sending a post");
+      console.error('Error in post to send server:', error.response ? error.response.data : error.message);
+    
+      if (error.message === 'Network Error') {
+        console.error('Network Error:', 'Please check your internet connection or server URL.');
+      } else {
+        console.error('Other Error:', error);
+      }
     }
+    
   };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => {
           setMedia(null);
-          navigation.navigate('MainTabs');
+          setCaption("");
+          navigation.navigate('Home');
+          console.log("navigate to maintab")
         }}>
           <Ionicons name="close" size={20} color="white" />
           <Text style={styles.headerText}>Cancel</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Upload Post</Text>
-        
+        <Text style={styles.headerTitle}>Next</Text>
       </View>
       <View style={styles.mediaPickerContainer}>
         <TouchableOpacity style={styles.mediaPlaceholder} onPress={pickMedia}>

@@ -40,7 +40,7 @@ const handleLike=(postId)=> {
     })
     .then((data) => {
         console.log("Data after like:", data);
-        // Your logic to update UI or handle the response
+       
     })
     .catch((error) => {
         console.error("Error liking post:", error);
@@ -76,7 +76,7 @@ const handleLike=(postId)=> {
               </View>
             </View>
           </View>
-          {/* Repeat the above code block for the remaining images */}
+          
         </View>
         <View style={styles.postsContainer}>
   {posts.reverse().map((elem) => (

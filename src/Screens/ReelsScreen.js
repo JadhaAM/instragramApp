@@ -8,7 +8,7 @@ const { height } = Dimensions.get('window');
 const videos = [
   { id: '1', uri: 'https://youtube.com/shorts/jhJ9Lfn7w8s?si=E5YAgQSJmvivMyFs' },
   { id: '2', uri: 'https://youtube.com/shorts/S7xrBIDdO7M?si=WSM4xhZLpi4Gq48l' },
-  // Add more video URIs
+ 
 ];
 
 const ReelsScreen = () => {

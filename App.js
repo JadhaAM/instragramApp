@@ -15,6 +15,7 @@ import ChatRoom from './src/Screens/ChatRoom';
 import { AuthProvider, AuthContext } from './src/AuthContext';
 import { SocketContextProvider } from './src/SocketContext';
 import ChatsScreen from './src/Screens/ChatsScreen';
+import EditScreen from './src/Screens/EditPage';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -39,11 +40,17 @@ function MainTabs() {
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
-        },
+        }
       })}
       tabBarOptions={{
         activeTintColor: 'tomato',
         inactiveTintColor: 'gray',
+        style:[
+          {
+            display:"flex"
+          },
+          null
+        ],
       }}
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
@@ -61,6 +68,7 @@ function MainStack() {
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="ChatScreen" component={ChatsScreen} options={{ headerShown: false }} />
       <Stack.Screen name="ChatRoom" component={ChatRoom} options={{ headerShown: false }} />
+      <Stack.Screen name="EditScreen" component={EditScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -91,7 +99,7 @@ function App() {
   }, []);
 
   if (!isTokenFetched) {
-    return null; // Optionally add a loading indicator here
+    return null; 
   }
 
   return (

@@ -11,11 +11,29 @@ const userSchema=mongoose.Schema({
   password:String,
   profileImage:String,
   bio:String,
+  requests: [
+    {
+      from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+      },
+      message: {
+        type: String,
+        required: true,
+      },
+      status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        default: 'pending',
+      },
+    },
+  ],
   posts:[{type:mongoose.Schema.Types.ObjectId,ref:"post"}],
   followers:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}],
   following:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}],
 })
-//this create serilized and deserialized users
+
 userSchema.plugin(plm);
 const User = mongoose.model("user",userSchema);
 
