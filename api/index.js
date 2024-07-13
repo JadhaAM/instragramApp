@@ -84,17 +84,29 @@ app.get('/like/post/:id',async function(req, res) {
 });
 
 
-app.get('/upload',async function(req, res) {
-  const user= await userModel.findOne({username:req.body.user}).populate("posts");
-
-});
-
 
 app.get('/username/:username', async function(req, res) {
- const rege=new RegExp(`^${req.params.username}`,'i'); 
- const users=  await userModel.find({username:rege}); 
-  res.json(users);
+  try {
+    const usernameParam = req.params.username;
+    
+    if (!usernameParam || typeof usernameParam !== 'string') {
+      return res.status(400).json({ error: 'Invalid username parameter' });
+    }
+
+   
+    const rege = new RegExp(`^${usernameParam}.*`, 'i');
+    
+    
+    const users = await userModel.find({ username: rege });
+
+    
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
 
 app.get("/username/:id",(req,res)=>{
   userModel.findOne({_id:req.body.id})
@@ -196,23 +208,27 @@ app.post("/unfollow",(req,res)=>{
 
 //update files
 
-app.post("/update",upload.single('imagefile') ,async function(req,res){
+app.post("/update", upload.single('media'), async function (req, res) {
+  try {
+    const { username, name, bio } = req.body;
+    const user = await userModel.findOneAndUpdate(
+      { username: req.body.currentUsername }, // Adjust this line to identify the user correctly
+      { username, name, bio },
+      { new: true }
+    );
 
- const user= await userModel.findOneAndUpdate(
-  {username:req.params.user},
-  {username:req.body.username,name:req.body.name,bio:req.body.bio},
-  {new:true}
-  );
-
-  if(req.file){
-
-    user.profileImage=req.file.filename;
+    if (req.file) {
+      user.profileImage = req.file.filename;
+    }
+    await user.save();
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-  await user.save();
-  res.status(200).json({ user });
 });
 
-app.post('/upload',authenticateToken, upload.single('image'), async function(req, res) {
+app.post('/upload',authenticateToken, upload.single('media'), async function(req, res) {
   try {
     const user = await userModel.findOne({ username: req.body.user });
     if (!user) {

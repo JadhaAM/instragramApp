@@ -3,6 +3,7 @@ import { View, TextInput, Text,ScrollView } from 'react-native';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 
+const apiUrl = process.env.EXPO_PUBLIC_SERVER_URL;
 const SearchScreen = () => {
   const [inputData, setInputData] = useState('');
   const [users, setUsers] = useState([]);
@@ -10,16 +11,21 @@ const SearchScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/username/${inputData}`);
+        console.log("response.data");
+        const response = await axios.get(`${apiUrl}/username/${inputData}`);
+        console.log(response.data);
         setUsers(response.data);
       } catch (error) {
         console.log(error);
       }
     };
-
-    fetchData();
+  
+    // Only call fetchData if inputData is not empty
+    if (inputData) {
+      fetchData();
+    }
   }, [inputData]);
-
+  
   return (
     <>
       <ScrollView style={{ flex: 1, backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 5 ,marginTop:30}}>
@@ -32,8 +38,8 @@ const SearchScreen = () => {
           />
           <TextInput style={{ color: 'gray' }}></TextInput>
           <TextInput
-            style={{ marginLeft: 1, flex: 1, backgroundColor: '#000', color: '#ccc' }}
-            placeholder="search username"
+            style={{ marginLeft: 1, flex: 1, backgroundColor: '#000', color: 'white' }}
+            
             value={inputData}
             onChangeText={setInputData}
           />

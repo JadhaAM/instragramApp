@@ -52,7 +52,7 @@ const ProfileScreen = ({ navigation }) => {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Loading...</Text>
-        <TouchableOpacity onPress={logout}>
+        <TouchableOpacity >
           <Text>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -67,7 +67,7 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => { }}>
             <Text style={styles.iconText}>+</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+          <TouchableOpacity onPress={logout}>
             <Text style={styles.iconText}>☰</Text>
           </TouchableOpacity>
         </View>

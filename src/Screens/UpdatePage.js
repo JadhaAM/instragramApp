@@ -49,7 +49,7 @@ const PostScreen = ({ navigation }) => {
         type: media.type,
       });
       formData.append('caption', caption);
-      formData.append('user', JSON.stringify(contextUser)); 
+      
     
       console.log('FormData:', formData); 
     
