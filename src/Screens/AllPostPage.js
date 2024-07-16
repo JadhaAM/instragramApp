@@ -1,138 +1,166 @@
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { View, Text, StyleSheet, TouchableOpacity , Image } from 'react-native';
-
-const posts =[
-
-]
- const AllPostScreen=()=>{
-
-const getTimeElapsed=(postDate) =>{
-    const currentDate = new Date();
-    const postDateTime = new Date(postDate);
-
-    const timeDifference = currentDate - postDateTime;
-    const seconds = Math.floor(timeDifference / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) {
-        return days === 1 ? '1 day' : `${days} days`;
-    } else if (hours > 0) {
-        return hours === 1 ? '1 hour' : `${hours} hours`;
-    } else if (minutes > 0) {
-        return minutes === 1 ? '1 minute' : `${minutes} minutes`;
-    } else {
-        return 'just now';
-    }
-}
-
-const handleLike=(postId)=> {
-    fetch(`/like/post/${postId}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-    }).then((response) => {
-        console.log("Response:", response);
-        return response.json();
-    })
-    .then((data) => {
-        console.log("Data after like:", data);
-       
-    })
-    .catch((error) => {
-        console.error("Error liking post:", error);
-    });
-}
-
-
-    return (
-        <>
-      <View style={{ backgroundColor: '#000', paddingTop: 5 }}>
-        
-        <View style={{ flexDirection: 'row', paddingHorizontal: 3, gap: 3, overflow: 'auto', marginTop: 25 }}>
-          <View style={{ flexShrink: 0 }}>
-            <View
-              style={{
-                width: '18vw',
-                height: '18vw',
-                borderRadius: 8,
-                backgroundColor: 'skyblue',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                backgroundImage: 'linear-gradient(to right, purple, orange)',
-              }}
-            >
-              <View style={{ width: '92%', height: '92%', borderRadius: 8, overflow: 'hidden' }}>
-                <Image
-                  style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-                  source={{
-                    uri:
-                      'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=2550&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                  }}
-                />
-              </View>
-            </View>
-          </View>
-          
-        </View>
-        <View style={styles.postsContainer}>
-  {posts.reverse().map((elem) => (
-    <View style={styles.postContainer} key={elem._id}>
-      <View style={styles.titleContainer}>
-        <View style={styles.profileImageContainer}>
-          <Image
-            style={styles.profileImage}
-            source={{ uri: `/images/updates/${elem.user.profileImage}` }}
-            alt="postImage"
-          />
-        </View>
-        <Text style={styles.username}>{elem.user.username}</Text>
-        <Text style={styles.timestamp}>1d</Text>
-      </View>
-      <View style={styles.imageContainer}>
-        <Image
-          style={styles.postImage}
-          source={{ uri: `/images/updates/${elem.picture}` }}
-          alt="postImage"
-        />
-      </View>
-      <View style={styles.optionsContainer}>
-        <View style={styles.iconsContainer}>
-          <TouchableOpacity onPress={() => handleLike(elem._id)}>
-            {elem.like && elem.like.indexOf(user._id) !== -1 ? (
-              <Icon name="ri-heart-3-fill" style={styles.likeIcon} />
-            ) : (
-              <Icon name="ri-heart-3-line" style={styles.likeIcon} />
-            )}
-          </TouchableOpacity>
-          <Icon name="ri-chat-3-line" style={styles.commentIcon} />
-          <Icon name="ri-share-circle-line" style={styles.shareIcon} />
-        </View>
-        <Icon name="ri-bookmark-line" style={styles.bookmarkIcon} />
-      </View>
-      <Text style={styles.likesCount}>
-        {elem.like ? elem.like.length : 0} likes
-      </Text>
-      <Text style={styles.caption}>
-        <Text style={styles.usernameBold}>{elem.user.username} use name</Text>
-        {elem.caption}
-      </Text>
-    </View>
-  ))}
-</View>
-
-      </View>
-        </>
-    )
- }
-
- export default AllPostScreen;
-
- const styles =StyleSheet.create(
+const posts = [
+  // Sample post data
   {
-
+    id: 1,
+    username: 'ramPunde34__1',
+    profileImage: 'https://path/to/profile/image.jpg',
+    postImage: 'https://images.freeimages.com/images/large-previews/636/holding-a-dot-com-iii-1411477.jpg?fmt=webp&w=500',
+    likes: 27,
+    time: '1d',
+    caption: 'Happy Anniversary Dear Aho'
   }
- )
+  ,{
+    id: 2,
+    username: 'A_j6198',
+    profileImage: '/images/updates/image.png',
+    postImage: '/images/updates/image.png',
+    likes: 57,
+    time: '1d',
+    caption: 'Rocking Start'
+  }
+  ,
+  {
+    id: 3,
+    username: 'tushargade_321',
+    profileImage: 'https://path/to/profile/image.jpg',
+    postImage: 'https://path/to/post/image.jpg',
+    likes: 27,
+    time: '1d',
+    caption: 'Happy Anniversary Dear Aho'
+  }
+];
+
+const AllPostScreen = () => {
+
+  const handleLike = (postId) => {
+    fetch(`/like/post/${postId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+      .then((response) => {
+        console.log('Response:', response);
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Data after like:', data);
+      })
+      .catch((error) => {
+        console.error('Error liking post:', error);
+      });
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      {posts.map((post) => (
+        <View key={post.id} style={styles.postContainer}>
+          <View style={styles.header}>
+            <Image source={{ uri: post.profileImage }} style={styles.profileImage} />
+            <View style={styles.headerText}>
+              <Text style={styles.username}>{post.username}</Text>
+              <Text style={styles.timestamp}>{post.time}</Text>
+            </View>
+            <Ionicons name="ellipsis-horizontal" style={styles.moreIcon} />
+          </View>
+          <Image source={{ uri: post.postImage }} style={styles.postImage} />
+          <View style={styles.actionButtons}>
+            <View style={styles.leftActions}>
+              <TouchableOpacity onPress={() => handleLike(post.id)}>
+                <Ionicons name="heart-outline" style={styles.actionIcon} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="chatbubble-outline" style={styles.actionIcon} />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Ionicons name="paper-plane-outline" style={styles.actionIcon} />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity>
+              <Ionicons name="bookmark-outline" style={styles.bookmarkIcon} />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.likes}>{post.likes} likes</Text>
+          <Text style={styles.caption}>
+            <Text style={styles.captionUsername}>{post.username}</Text> {post.caption}
+          </Text>
+        </View>
+      ))}
+    </ScrollView>
+    
+  );
+};
+
+export default AllPostScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+  },
+  postContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  headerText: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  username: {
+    fontWeight: 'bold',
+  },
+  timestamp: {
+    color: '#888',
+  },
+  moreIcon: {
+    fontSize: 24,
+    color: '#888',
+  },
+  postImage: {
+    width: '100%',
+    height: 400,
+    resizeMode: 'cover',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  leftActions: {
+    flexDirection: 'row',
+  },
+  actionIcon: {
+    fontSize: 28,
+    marginRight: 15,
+  },
+  bookmarkIcon: {
+    fontSize: 28,
+  },
+  likes: {
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  caption: {
+    marginHorizontal: 10,
+  },
+  captionUsername: {
+    fontWeight: 'bold',
+  },
+});

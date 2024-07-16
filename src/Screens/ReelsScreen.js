@@ -23,6 +23,7 @@ const ReelsScreen = () => {
   const viewabilityConfig = { viewAreaCoveragePercentThreshold: 50 };
 
   return (
+    
     <FlatList
       data={videos}
       keyExtractor={(item) => item.id}
